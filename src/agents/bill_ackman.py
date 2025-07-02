@@ -1,13 +1,13 @@
 from langchain_openai import ChatOpenAI
-from graph.state import AgentState, show_agent_reasoning
-from tools.api import get_financial_metrics, get_market_cap, search_line_items
+from src.graph.state import AgentState, show_agent_reasoning
+from src.tools.api import get_financial_metrics, get_market_cap, search_line_items
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 import json
 from typing_extensions import Literal
-from utils.progress import progress
-from utils.llm import call_llm
+from src.utils.progress import progress
+from src.utils.llm import call_llm
 
 
 class BillAckmanSignal(BaseModel):
@@ -100,8 +100,7 @@ def bill_ackman_agent(state: AgentState):
         ackman_output = generate_ackman_output(
             ticker=ticker, 
             analysis_data=analysis_data,
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
         
         ackman_analysis[ticker] = {
@@ -110,7 +109,7 @@ def bill_ackman_agent(state: AgentState):
             "reasoning": ackman_output.reasoning
         }
         
-        progress.update_status("bill_ackman_agent", ticker, "Done")
+        progress.update_status("bill_ackman_agent", ticker, "Done", analysis=ackman_output.reasoning)
     
     # Wrap results in a single message for the chain
     message = HumanMessage(
@@ -124,6 +123,8 @@ def bill_ackman_agent(state: AgentState):
     
     # Add signals to the overall state
     state["data"]["analyst_signals"]["bill_ackman_agent"] = ackman_analysis
+
+    progress.update_status("bill_ackman_agent", None, "Done")
 
     return {
         "messages": [message],
@@ -396,8 +397,7 @@ def analyze_valuation(financial_line_items: list, market_cap: float) -> dict:
 def generate_ackman_output(
     ticker: str,
     analysis_data: dict[str, any],
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> BillAckmanSignal:
     """
     Generates investment decisions in the style of Bill Ackman.
@@ -458,9 +458,8 @@ def generate_ackman_output(
 
     return call_llm(
         prompt=prompt, 
-        model_name=model_name, 
-        model_provider=model_provider, 
         pydantic_model=BillAckmanSignal, 
         agent_name="bill_ackman_agent", 
+        state=state,
         default_factory=create_default_bill_ackman_signal,
     )

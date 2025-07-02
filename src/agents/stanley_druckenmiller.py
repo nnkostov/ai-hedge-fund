@@ -1,5 +1,5 @@
-from graph.state import AgentState, show_agent_reasoning
-from tools.api import (
+from src.graph.state import AgentState, show_agent_reasoning
+from src.tools.api import (
     get_financial_metrics,
     get_market_cap,
     search_line_items,
@@ -12,8 +12,8 @@ from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 import json
 from typing_extensions import Literal
-from utils.progress import progress
-from utils.llm import call_llm
+from src.utils.progress import progress
+from src.utils.llm import call_llm
 import statistics
 
 
@@ -137,8 +137,7 @@ def stanley_druckenmiller_agent(state: AgentState):
         druck_output = generate_druckenmiller_output(
             ticker=ticker,
             analysis_data=analysis_data,
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
 
         druck_analysis[ticker] = {
@@ -147,7 +146,7 @@ def stanley_druckenmiller_agent(state: AgentState):
             "reasoning": druck_output.reasoning,
         }
 
-        progress.update_status("stanley_druckenmiller_agent", ticker, "Done")
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Done", analysis=druck_output.reasoning)
 
     # Wrap results in a single message
     message = HumanMessage(content=json.dumps(druck_analysis), name="stanley_druckenmiller_agent")
@@ -156,6 +155,9 @@ def stanley_druckenmiller_agent(state: AgentState):
         show_agent_reasoning(druck_analysis, "Stanley Druckenmiller Agent")
 
     state["data"]["analyst_signals"]["stanley_druckenmiller_agent"] = druck_analysis
+
+    progress.update_status("stanley_druckenmiller_agent", None, "Done")
+    
     return {"messages": [message], "data": state["data"]}
 
 
@@ -521,8 +523,7 @@ def analyze_druckenmiller_valuation(financial_line_items: list, market_cap: floa
 def generate_druckenmiller_output(
     ticker: str,
     analysis_data: dict[str, any],
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> StanleyDruckenmillerSignal:
     """
     Generates a JSON signal in the style of Stanley Druckenmiller.
@@ -587,9 +588,8 @@ def generate_druckenmiller_output(
 
     return call_llm(
         prompt=prompt,
-        model_name=model_name,
-        model_provider=model_provider,
         pydantic_model=StanleyDruckenmillerSignal,
         agent_name="stanley_druckenmiller_agent",
+        state=state,
         default_factory=create_default_signal,
     )

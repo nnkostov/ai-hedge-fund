@@ -21,11 +21,11 @@ function LayoutContent({ children }: { children: ReactNode }) {
   
   // Initialize sidebar states from storage service
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(() => 
-    SidebarStorageService.loadLeftSidebarState(true)
+    SidebarStorageService.loadLeftSidebarState(false)
   );
   
   const [isRightCollapsed, setIsRightCollapsed] = useState(() => 
-    SidebarStorageService.loadRightSidebarState(true)
+    SidebarStorageService.loadRightSidebarState(false)
   );
 
   const [isBottomCollapsed, setIsBottomCollapsed] = useState(() => 
@@ -149,7 +149,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
           isCollapsed={isLeftCollapsed}
           onCollapse={() => setIsLeftCollapsed(true)}
           onExpand={() => setIsLeftCollapsed(false)}
-          onToggleCollapse={() => setIsLeftCollapsed(!isLeftCollapsed)}
           onWidthChange={setLeftSidebarWidth}
         />
       </div>
@@ -163,7 +162,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
           isCollapsed={isRightCollapsed}
           onCollapse={() => setIsRightCollapsed(true)}
           onExpand={() => setIsRightCollapsed(false)}
-          onToggleCollapse={() => setIsRightCollapsed(!isRightCollapsed)}
           onWidthChange={setRightSidebarWidth}
         />
       </div>

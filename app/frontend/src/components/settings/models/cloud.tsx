@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Cloud, Key, RefreshCw } from 'lucide-react';
+import { Cloud, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface CloudModelsProps {
@@ -20,21 +20,6 @@ interface ModelProvider {
     model_name: string;
   }>;
 }
-
-const getProviderColor = (provider: string) => {
-  switch (provider.toLowerCase()) {
-    case 'anthropic':
-      return 'bg-orange-600/20 text-orange-300 border-orange-600/40';
-    case 'google':
-      return 'bg-green-600/20 text-green-300 border-green-600/40';
-    case 'groq':
-      return 'bg-red-600/20 text-red-300 border-red-600/40';
-    case 'deepseek':
-      return 'bg-blue-600/20 text-blue-300 border-blue-600/40';
-    default:
-      return 'bg-gray-600/20 text-gray-300 border-gray-600/40';
-  }
-};
 
 export function CloudModels({ className }: CloudModelsProps) {
   const [providers, setProviders] = useState<ModelProvider[]>([]);
@@ -74,66 +59,45 @@ export function CloudModels({ className }: CloudModelsProps) {
 
   return (
     <div className={cn("space-y-6", className)}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-100 dark:text-gray-100 mb-2">Cloud Models</h3>
-          <p className="text-sm text-gray-400 dark:text-gray-400">
-            Available cloud-based AI models from various providers. API keys required for usage.
-          </p>
-        </div>
-      </div>
 
       {error && (
         <div className="bg-red-900/20 border border-red-600/30 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <Cloud className="h-5 w-5 text-red-400 mt-0.5" />
+            <Cloud className="h-5 w-5 text-red-500 mt-0.5" />
             <div>
               <h4 className="font-medium text-red-300">Error</h4>
-              <p className="text-sm text-red-400 mt-1">{error}</p>
+              <p className="text-sm text-red-500 mt-1">{error}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* API Keys Notice */}
-      <div className="bg-blue-700/20 border border-blue-600/30 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <Key className="h-5 w-5 text-blue-400 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-blue-300">API Keys Required</h4>
-            <p className="text-sm text-blue-400 mt-1">
-              To use cloud models, configure your API keys in the <strong>API Keys</strong> settings section.
-              Each provider requires its own API key for authentication.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-medium text-gray-100">Available Models</h3>
-          <span className="text-xs text-gray-400">
+          <h3 className="font-medium text-primary
+          ">Available Models</h3>
+          <span className="text-xs text-muted-foreground">
             {allModels.length} models from {providers.length} providers
           </span>
         </div>
 
         {loading ? (
           <div className="text-center py-8">
-            <RefreshCw className="h-8 w-8 mx-auto mb-2 animate-spin text-gray-400" />
-            <p className="text-sm text-gray-400">Loading cloud models...</p>
+            <RefreshCw className="h-8 w-8 mx-auto mb-2 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Loading cloud models...</p>
           </div>
         ) : allModels.length > 0 ? (
           <div className="space-y-1">
             {allModels.map((model) => (
               <div 
                 key={`${model.provider}-${model.model_name}`}
-                className="group flex items-center justify-between bg-gray-700/30 hover:bg-gray-700/50 rounded-md px-3 py-2.5 transition-colors"
+                className="group flex items-center justify-between bg-muted hover-bg rounded-md px-3 py-2.5 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm truncate text-gray-200">{model.display_name}</span>
+                    <span className="font-medium text-sm truncate text-primary">{model.display_name}</span>
                     {model.model_name !== model.display_name && (
-                      <span className="font-mono text-xs text-gray-400">
+                      <span className="font-mono text-xs text-muted-foreground">
                         {model.model_name}
                       </span>
                     )}
@@ -141,7 +105,7 @@ export function CloudModels({ className }: CloudModelsProps) {
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <Badge className={cn("text-xs", getProviderColor(model.provider))}>
+                  <Badge className="text-xs text-primary bg-primary/10 border-primary/30 hover:bg-primary/20 hover:border-primary/50">
                     {model.provider}
                   </Badge>
                 </div>
@@ -150,7 +114,7 @@ export function CloudModels({ className }: CloudModelsProps) {
           </div>
         ) : (
           !loading && (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
               <Cloud className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No models available</p>
             </div>

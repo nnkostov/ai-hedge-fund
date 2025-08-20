@@ -5,6 +5,7 @@ from langchain_deepseek import ChatDeepSeek
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
+from langchain_gigachat import GigaChat
 from langchain_ollama import ChatOllama
 from enum import Enum
 from pydantic import BaseModel
@@ -24,6 +25,8 @@ class ModelProvider(str, Enum):
     MISTRAL = "Mistral"
     OPENAI = "OpenAI"
     OLLAMA = "Ollama"
+    OPENROUTER = "OpenRouter"
+    GIGACHAT = "GigaChat"
 
 
 class LLMModel(BaseModel):
@@ -48,6 +51,9 @@ class LLMModel(BaseModel):
         # Only certain Ollama models support JSON mode
         if self.is_ollama():
             return "llama3" in self.model_name or "neural-chat" in self.model_name
+        # OpenRouter models generally support JSON mode
+        if self.provider == ModelProvider.OPENROUTER:
+            return True
         return True
 
     def is_deepseek(self) -> bool:
@@ -119,7 +125,7 @@ def get_models_list():
     ]
 
 
-def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = None) -> ChatOpenAI | ChatGroq | ChatOllama | None:
+def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = None) -> ChatOpenAI | ChatGroq | ChatOllama | GigaChat | None:
     if model_provider == ModelProvider.GROQ:
         api_key = (api_keys or {}).get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
         if not api_key:
@@ -163,3 +169,34 @@ def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = N
             model=model_name,
             base_url=base_url,
         )
+    elif model_provider == ModelProvider.OPENROUTER:
+        api_key = (api_keys or {}).get("OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            print(f"API Key Error: Please make sure OPENROUTER_API_KEY is set in your .env file or provided via API keys.")
+            raise ValueError("OpenRouter API key not found. Please make sure OPENROUTER_API_KEY is set in your .env file or provided via API keys.")
+        
+        # Get optional site URL and name for headers
+        site_url = os.getenv("YOUR_SITE_URL", "https://github.com/virattt/ai-hedge-fund")
+        site_name = os.getenv("YOUR_SITE_NAME", "AI Hedge Fund")
+        
+        return ChatOpenAI(
+            model=model_name,
+            openai_api_key=api_key,
+            openai_api_base="https://openrouter.ai/api/v1",
+            model_kwargs={
+                "extra_headers": {
+                    "HTTP-Referer": site_url,
+                    "X-Title": site_name,
+                }
+            }
+        )
+    elif model_provider == ModelProvider.GIGACHAT:
+        if os.getenv("GIGACHAT_USER") or os.getenv("GIGACHAT_PASSWORD"):
+            return GigaChat(model=model_name)
+        else: 
+            api_key = (api_keys or {}).get("GIGACHAT_API_KEY") or os.getenv("GIGACHAT_API_KEY") or os.getenv("GIGACHAT_CREDENTIALS")
+            if not api_key:
+                print("API Key Error: Please make sure api_keys is set in your .env file or provided via API keys.")
+                raise ValueError("GigaChat API key not found. Please make sure GIGACHAT_API_KEY is set in your .env file or provided via API keys.")
+
+            return GigaChat(credentials=api_key, model=model_name)

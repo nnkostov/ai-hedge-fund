@@ -1,5 +1,10 @@
 [
   {
+    "display_name": "Grok 4",
+    "model_name": "grok-4-0709",
+    "provider": "xAI"
+  },
+  {
     "display_name": "GPT-5",
     "model_name": "gpt-5",
     "provider": "OpenAI"
@@ -98,5 +103,10 @@
     "display_name": "GigaChat-2-Max",
     "model_name": "GigaChat-2-Max",
     "provider": "GigaChat"
+  },
+  {
+    "display_name": "Azure Open AI Deployment",
+    "model_name": "",
+    "provider": "Azure OpenAI"
   }
 ]

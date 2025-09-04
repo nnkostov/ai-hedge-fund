@@ -45,8 +45,8 @@ By using this software, you agree to use it solely for learning purposes.
 - [How to Install](#how-to-install)
 - [How to Run](#how-to-run)
   - [⌨️ Command Line Interface](#️-command-line-interface)
-  - [🖥️ Web Application](#️-web-application)
-- [How to Contribute](#how-to-contribute)
+  - [🖥️ Web Application (NEW!)](#️-web-application)
+- [Contributing](#contributing)
 - [Feature Requests](#feature-requests)
 - [License](#license)
 
@@ -61,7 +61,7 @@ git clone https://github.com/virattt/ai-hedge-fund.git
 cd ai-hedge-fund
 ```
 
-### 2. Set up API keys
+### 2. Set Up Your API Keys
 
 Create a `.env` file for your API keys:
 ```bash
@@ -86,60 +86,100 @@ FINANCIAL_DATASETS_API_KEY=your-financial-datasets-api-key
 
 ### ⌨️ Command Line Interface
 
-You can run the AI Hedge Fund directly via terminal. This approach offers more granular control and is useful for automation, scripting, and integration purposes.
+For users who prefer working with command line tools, you can run the AI Hedge Fund directly via terminal. This approach offers more granular control and is useful for automation, scripting, and integration purposes.
 
 <img width="992" alt="Screenshot 2025-01-06 at 5 50 17 PM" src="https://github.com/user-attachments/assets/e8ca04bf-9989-4a7d-a8b4-34e04666663b" />
 
-#### Quick Start
+#### Using Docker
 
-1. Install Poetry (if not already installed):
+1. Make sure you have Docker installed on your system. If not, you can download it from [Docker's official website](https://www.docker.com/get-started).
+
+2. Navigate to the docker directory:
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+cd docker
 ```
 
-2. Install dependencies:
+3. Build the Docker image:
 ```bash
-poetry install
+# On Linux/Mac:
+./run.sh build
+
+# On Windows:
+run.bat build
 ```
 
-#### Run the AI Hedge Fund
+#### Running the AI Hedge Fund (with Docker)
 ```bash
-poetry run python src/main.py --ticker AAPL,MSFT,NVDA
+# Navigate to the docker directory first
+cd docker
+
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA main
+
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA main
 ```
 
 You can also specify a `--ollama` flag to run the AI hedge fund using local LLMs.
 
 ```bash
-poetry run python src/main.py --ticker AAPL,MSFT,NVDA --ollama
+# With Docker (from docker/ directory):
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA --ollama main
+
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA --ollama main
 ```
 
-You can optionally specify the start and end dates to make decisions over a specific time period.
+You can optionally specify the start and end dates to make decisions for a specific time period.
 
 ```bash
-poetry run python src/main.py --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01
+# With Docker (from docker/ directory):
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 main
+
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 main
 ```
 
-#### Run the Backtester
+#### Running the Backtester (with Docker)
 ```bash
-poetry run python src/backtester.py --ticker AAPL,MSFT,NVDA
+# Navigate to the docker directory first
+cd docker
+
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA backtest
+
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA backtest
 ```
 
 **Example Output:**
 <img width="941" alt="Screenshot 2025-01-06 at 5 47 52 PM" src="https://github.com/user-attachments/assets/00e794ea-8628-44e6-9a84-8f8a31ad3b47" />
 
 
-Note: The `--ollama`, `--start-date`, and `--end-date` flags work for the backtester, as well!
+You can optionally specify the start and end dates to backtest over a specific time period.
 
-### 🖥️ Web Application
+```bash
+# With Docker (from docker/ directory):
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 backtest
 
-The new way to run the AI Hedge Fund is through our web application that provides a user-friendly interface. This is recommended for users who prefer visual interfaces over command line tools.
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 backtest
+```
 
-Please see detailed instructions on how to install and run the web application [here](https://github.com/virattt/ai-hedge-fund/tree/main/app).
+You can also specify a `--ollama` flag to run the backtester using local LLMs.
+```bash
+# With Docker (from docker/ directory):
+# On Linux/Mac:
+./run.sh --ticker AAPL,MSFT,NVDA --ollama backtest
 
-<img width="1721" alt="Screenshot 2025-06-28 at 6 41 03 PM" src="https://github.com/user-attachments/assets/b95ab696-c9f4-416c-9ad1-51feb1f5374b" />
+# On Windows:
+run.bat --ticker AAPL,MSFT,NVDA --ollama backtest
+```
 
-
-## How to Contribute
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
